@@ -67,6 +67,7 @@ current_service_context = None
 
 
 
+
 #initial processing of document
 @app.post("/process")
 async def process(filetype : Annotated[str,Form()], 
@@ -75,7 +76,7 @@ async def process(filetype : Annotated[str,Form()],
                   llm_model = Annotated[str,Form()]):
     
 
-    global current_filename, current_filetype, current_service_context, current_index
+    global current_filename, current_filetype, current_service_context, current_index, current_vector_index
     current_service_context = embeddings.get_service_context(embed_model, llm_model)
     current_filename = file.filename
     current_filetype = filetype
@@ -87,10 +88,10 @@ async def process(filetype : Annotated[str,Form()],
     
 
     #create embeddings
-    currentcurrent_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
+    current_vector_index,current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
 
-    return {"Embeddings created for file":file.filename}
+    return {"Embeddings created for file ":file.filename}
 
 
 
@@ -100,15 +101,29 @@ async def process(filetype : Annotated[str,Form()],
 
 
 #ask questions on processed document
-@app.post("/query")
+@app.post("/queryqna")
 async def query(query : Annotated[str, Form()]):
     
     print(current_filename)
-    res = embeddings.query(query,current_filename,current_service_context)
+    res = embeddings.query_qna(query,current_filename,current_service_context)
     
     print(res)
 
     return res
+
+@app.post("/queryhighlight")
+async def query(query : Annotated[str, Form()]):
+    
+    print(current_filename)
+    res = embeddings.query_highlight(query,current_filename,current_service_context)
+    
+    print(res)
+
+    return res
+
+
+
+
 
 # summarize processed document
 @app.post("/summarize")
@@ -117,7 +132,7 @@ async def summarize():
     if current_index is None :
         return {"Error":"No file currently processed"}
     
-    res = embeddings.summarize_doc(current_index)
+    res = embeddings.summarize_doc(current_index,current_service_context)
 
     return res
 
