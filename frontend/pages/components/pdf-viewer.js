@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Viewer, Worker, PageLayout } from '@react-pdf-viewer/core';
 // Import the styles
 import '@react-pdf-viewer/core/lib/styles/index.css';
+import { useSelector } from 'react-redux';
 
 
 const pageLayout = {
@@ -17,12 +18,13 @@ const pageLayout = {
 const PdfViewer = () => {
 
     const [selectedText, setSelectedText] = useState("");
+    const data = useSelector(state => state.data);
+    console.log(data);
 
     const handleSelection = () => {
         const selection = window.getSelection();
         setSelectedText(selection.toString());
     };
-    console.log(selectedText);
     return (
         <div
             style={{
