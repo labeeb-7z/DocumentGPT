@@ -8,7 +8,8 @@ from llama_index.indices.composability import ComposableGraph
 
 from pydantic import BaseModel
 from typing import Annotated
-from llama_index import download_loader
+from llama_index import download_loader, ServiceContext
+from PyPDF2 import PdfMerger
 
 
 
@@ -16,6 +17,7 @@ from llama_index import download_loader
 # Other requirements
 import shutil
 import pathlib
+import os
 
 
 
@@ -72,27 +74,38 @@ current_service_context = None
 #initial processing of document
 @app.post("/process")
 async def process(filetype : Annotated[str,Form()], 
-                  file: UploadFile = File(...), 
+                  files: list[UploadFile], 
                   embed_model = Annotated[str,Form()],
                   llm_model = Annotated[str,Form()]):
     
 
+    merger = PdfMerger()
+
+    for file in files :
+        with open(f"current_active/_merge{file.filename}", "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+
+    for item in os.listdir('./current_active/'):
+        if item.startswith('_merge'):
+            #print(item)
+            merger.append('./current_active/' + item)
+
+    merger.write('./current_active/' + 'merged.pdf')
+    merger.close()
     global current_filename, current_filetype, current_service_context, current_index, current_vector_index
     current_service_context = embeddings.get_service_context(embed_model, llm_model)
-    current_filename = file.filename
+    current_filename = "merged.pdf"
     current_filetype = filetype
 
 
-    # save the file locally
-    with open(f"current_active/{file.filename}", "wb") as buffer:
-        shutil.copyfileobj(file.file, buffer)
     
 
     #create embeddings
     current_vector_index,current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
 
-    return {"Embeddings created for file ":file.filename}
+    return {"Embeddings created for file ":"done"}
 
 
 
@@ -191,33 +204,57 @@ async def url_query(question: Annotated[str, Form()]):
 
 @app.post("/multi")
 async def multi(files: list[UploadFile], embed_model = Annotated[str,Form()],llm_model = Annotated[str,Form()]):
-    index_list = []
-    summary_list=[]
-    PDFReader = download_loader("PDFReader")
+    # index_list = []
+    # summary_list=[]
+    # PDFReader = download_loader("PDFReader")
+    # current_service_context = embeddings.get_service_context(embed_model, llm_model)
+    # for file in files:
+    #         with open(f"current_active/{file.filename}", "wb") as buffer:
+    #             shutil.copyfileobj(file.file, buffer)
+    #         loader = PDFReader()
+    #         doc = loader.load_data(f"current_active/{file.filename}")
+
+    #         index = GPTListIndex.from_documents(doc,service_context=current_service_context)
+    #         index_list.append(index)
+    #         summary_list.append(str(index.query("What is a summary of this document?", response_mode="tree_summarize")))
+
+    merger = PdfFileMerger()
+
+    for file in files :
+        with open(f"current_active/_merge{file.filename}", "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
+
+
+    for item in os.listdir('./current_active/'):
+        if item.startswith('_merge'):
+            #print(item)
+            merger.append('./current_active/' + item)
+
+    merger.write('./current_active/' + 'merged.pdf')
+    merger.close()
+
+    global current_filename, current_filetype, current_service_context, current_index, current_vector_index
     current_service_context = embeddings.get_service_context(embed_model, llm_model)
-    for file in files:
-            with open(f"current_active/{file.filename}", "wb") as buffer:
-                shutil.copyfileobj(file.file, buffer)
-            loader = PDFReader()
-            doc = loader.load_data(f"current_active/{file.filename}")
-
-            index = GPTListIndex.from_documents(doc)
-            index_list.append(index)
-            summary_list.append(str(index.query("What is a summary of this document?", response_mode="tree_summarize")))
-
-            
-    graph = ComposableGraph.from_indices(
-        GPTListIndex,
-        index_list,
-        index_summaries=summary_list,)
+    current_filename = "merged.pdf"
+    current_filetype = "pdf"
     
-    graph.save_to_disk("data/graph.json")
+
+    # graph = ComposableGraph.from_indices(
+    #     GPTListIndex,
+    #     index_list,
+    #     index_summaries=summary_list,service_context=current_service_context)
+    
+    #graph.save_to_disk("data/graph.json")
 # embeddings.create_embeddings(current_filename, current_filetype, current_service_context)[1]
 # current_vector_index,current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
     return "Embeddings created for all the files"
 
 @app.post("/multi_query")
 async def multi_query(query : Annotated[str,Form()]) :
-    graph = ComposableGraph.load_from_disk("data/graph.json")
+    
 
-    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of text embeddings from a paper in order of their cosine similarity to the query. You must take the given embeddings and return the only correct   answer from the paper that answers the query."+query)
+    service_context = ServiceContext.from_defaults(chunk_size_limit=256)
+
+    graph = ComposableGraph.load_from_disk("data/graph.json",service_context=current_service_context)
+
+    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of summaries from the research paper. Your task is take these summaries and generate an accurate and precise response to the user's query.   User's Query is : "+query+"  Answer : ")
