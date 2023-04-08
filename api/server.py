@@ -220,4 +220,4 @@ async def multi(files: list[UploadFile], embed_model = Annotated[str,Form()],llm
 async def multi_query(query : Annotated[str,Form()]) :
     graph = ComposableGraph.load_from_disk("data/graph.json")
 
-    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of text embeddings from a paper in order of their cosine similarity to the query. You must take the given embeddings and return the most correct answer from the paper that answers the query."+query)
+    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of text embeddings from a paper in order of their cosine similarity to the query. You must take the given embeddings and return the only correct   answer from the paper that answers the query."+query)
