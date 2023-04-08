@@ -3,9 +3,11 @@
 from fastapi import FastAPI, Request, File, UploadFile, Form
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
+from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader, QuestionAnswerPrompt, GPTListIndex
 
 from pydantic import BaseModel
 from typing import Annotated
+from llama_index import download_loader
 
 
 
@@ -57,6 +59,7 @@ async def root() :
 
 current_filename = None
 current_filetype = None
+current_vector_index = None
 current_index = None
 current_service_context = None
 
@@ -84,7 +87,7 @@ async def process(filetype : Annotated[str,Form()],
     
 
     #create embeddings
-    current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
+    currentcurrent_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
 
     return {"Embeddings created for file":file.filename}
@@ -125,5 +128,25 @@ async def summarizequery(query : Annotated[str, Form()]):
         return {"Error":"No file currently processed"}
     
     res = embeddings.summarizequery_query(query,current_index)
+
+    return res
+
+# To get a topic from user and load papers
+@app.post("/arxiv")
+async def arxiv(topic: str):
+    ArxivReader = download_loader("ArxivReader")
+    loader = ArxivReader()
+    document = loader.load_data(search_query=topic) # How to get max 3 results?
+
+    index = GPTSimpleVectorIndex.from_documents(document,service_context=current_service_context)
+    index.save_to_disk(f"./data/arxiv.json") # Will create a file
+
+    return 1
+
+# To get a query for arxiv from user and return result from the papers loaded earlier
+@app.post("/arxiv_query")
+async def arxiv_query(question : Annotated[str, Form()]):
+    index = GPTSimpleVectorIndex.load_from_disk(f"./data/arxiv.json", service_context=current_service_context)
+    res=index.query(question, verbose=True,response_mode="compact")
 
     return res
