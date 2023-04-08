@@ -1,4 +1,17 @@
 import React, { useState } from 'react'
+// child
+import { Viewer, Worker, PageLayout } from '@react-pdf-viewer/core';
+// Import the styles
+import '@react-pdf-viewer/core/lib/styles/index.css';
+import { useDispatch } from 'react-redux';
+
+
+const pageLayout = {
+    transformSize: ({ size }) => ({
+        height: size.height + 30,
+        width: size.width + 30,
+    }),
+};
 
 const UploadPdf = () => {
     const [file, setFile] = useState(null);
@@ -6,6 +19,7 @@ const UploadPdf = () => {
     const [dragging, setDragging] = useState(false);
     const [isList, setIsList] = useState(false);
     const [isSubList, setIsSubList] = useState(3);
+    const dispatch = useDispatch();
 
     const handleDragEnter = (e) => {
         e.preventDefault();
@@ -47,19 +61,23 @@ const UploadPdf = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         console.log(file);
-        const formData = new FormData();
-        formData.append("file", file);
+        dispatch({
+            type: 'SET_DATA',
+            payload: file,
+        });
+        // const formData = new FormData();
+        // formData.append("file", file);
         
-        try {
-            const response = await fetch("http://127.0.0.1:8000/upload", {
-                method: "POST",
-                body: formData,
-            });
-            const data = await response.json();
-            console.log(data);
-        } catch (error) {
-            console.error(error);
-        }
+        // try {
+        //     const response = await fetch("http://127.0.0.1:8000/upload", {
+        //         method: "POST",
+        //         body: formData,
+        //     });
+        //     const data = await response.json();
+        //     console.log(data);
+        // } catch (error) {
+        //     console.error(error);
+        // }
     };
     return (
         <div>
@@ -126,4 +144,4 @@ const UploadPdf = () => {
     )
 }
 
-export default UploadPdf
+export default UploadPdf;
