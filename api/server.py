@@ -104,20 +104,17 @@ async def process(filetype : Annotated[str,Form()],
 @app.post("/queryqna")
 async def query(query : Annotated[str, Form()]):
     
-    print(current_filename)
     res = embeddings.query_qna(query,current_filename,current_service_context)
-    
-    print(res)
+
 
     return res
 
 @app.post("/queryhighlight")
-async def query(query : Annotated[str, Form()]):
+async def query(query : Annotated[str, Form()], context : Annotated[str, Form()]):
     
-    print(current_filename)
+    print("queryhighlight called")
     res = embeddings.query_highlight(query,current_filename,current_service_context)
     
-    print(res)
 
     return res
 
