@@ -59,6 +59,7 @@ async def root() :
 
 current_filename = None
 current_filetype = None
+current_vector_index = None
 current_index = None
 current_service_context = None
 
@@ -86,7 +87,7 @@ async def process(filetype : Annotated[str,Form()],
     
 
     #create embeddings
-    current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
+    currentcurrent_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
 
     return {"Embeddings created for file":file.filename}
