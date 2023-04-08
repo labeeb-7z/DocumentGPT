@@ -7,7 +7,7 @@ from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader, QuestionAns
 from llama_index.indices.composability import ComposableGraph
 
 from pydantic import BaseModel
-from typing import Annotated
+from typing import Annotated, List
 from llama_index import download_loader, ServiceContext
 from PyPDF2 import PdfMerger
 
@@ -74,11 +74,13 @@ current_service_context = None
 #initial processing of document
 @app.post("/process")
 async def process(filetype : Annotated[str,Form()], 
-                  files: list[UploadFile], 
+                  files: List[UploadFile] = File(...),
                   embed_model = Annotated[str,Form()],
-                  llm_model = Annotated[str,Form()]):
+                  llm_model = Annotated[str,Form()],
+                  ocr = Annotated[str,Form()]):
     
 
+    print("FDasfdsafasdf")
     merger = PdfMerger()
 
     for file in files :
@@ -88,8 +90,10 @@ async def process(filetype : Annotated[str,Form()],
 
     for item in os.listdir('./current_active/'):
         if item.startswith('_merge'):
-            #print(item)
+            if ocr == "true" :
+                embeddings.get_ocr_done(item)
             merger.append('./current_active/' + item)
+            os.remove('./current_active/' + item)
 
     merger.write('./current_active/' + 'merged.pdf')
     merger.close()
@@ -106,6 +110,7 @@ async def process(filetype : Annotated[str,Form()],
 
 
     return {"Embeddings created for file ":"done"}
+    return {"response":f"Embeddings created for {file.filename}"}
 
 
 
@@ -198,7 +203,7 @@ async def url(link:Annotated[str, Form()]):
 # ask a question from the submited url
 @app.post("/url_query")
 async def url_query(question: Annotated[str, Form()]):
-    index = GPTListIndex.load_from_disk(f"./data/url.json", service_context=current_service_context)
+    index = GPTSimpleVectorIndex.load_from_disk(f"./data/url.json", service_context=current_service_context)
     res=index.query(question, similarity_top_k=3, verbose=True,response_mode="compact")
     return res
 
@@ -251,10 +256,7 @@ async def multi(files: list[UploadFile], embed_model = Annotated[str,Form()],llm
 
 @app.post("/multi_query")
 async def multi_query(query : Annotated[str,Form()]) :
-    
+    graph = ComposableGraph.load_from_disk("data/graph.json")
 
-    service_context = ServiceContext.from_defaults(chunk_size_limit=256)
+    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of text embeddings from a paper in order of their cosine similarity to the query. You must take the given embeddings and return the only correct   answer from the paper that answers the query."+query)
 
-    graph = ComposableGraph.load_from_disk("data/graph.json",service_context=current_service_context)
-
-    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of summaries from the research paper. Your task is take these summaries and generate an accurate and precise response to the user's query.   User's Query is : "+query+"  Answer : ")
