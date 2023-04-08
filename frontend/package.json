@@ -1,6 +1,6 @@
 {
   "name": "frontend",
-  "proxy": "https://www.seas.upenn.edu/~zives/03f/cis550/",
+  "proxy": "https://docs.google.com/",
   "version": "0.1.0",
   "private": true,
   "scripts": {
