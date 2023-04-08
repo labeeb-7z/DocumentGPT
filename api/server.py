@@ -148,20 +148,49 @@ async def summarizequery(query : Annotated[str, Form()]):
 
 # To get a topic from user and load papers
 @app.post("/arxiv")
-async def arxiv(topic: str):
+async def arxiv(topic:  Annotated[str, Form()]):
     ArxivReader = download_loader("ArxivReader")
     loader = ArxivReader()
-    document = loader.load_data(search_query=topic) # How to get max 3 results?
+    document = loader.load_data(search_query=topic, max_results=1) # How to get max 3 results?
 
     index = GPTSimpleVectorIndex.from_documents(document,service_context=current_service_context)
     index.save_to_disk(f"./data/arxiv.json") # Will create a file
+    return "Papers fetched"
 
-    return 1
-
-# To get a query for arxiv from user and return result from the papers loaded earlier
 @app.post("/arxiv_query")
 async def arxiv_query(question : Annotated[str, Form()]):
     index = GPTSimpleVectorIndex.load_from_disk(f"./data/arxiv.json", service_context=current_service_context)
-    res=index.query(question, verbose=True,response_mode="compact")
+    res=index.query(question, similarity_top_k=3,verbose=True,response_mode="compact")
 
     return res
+
+# submit a url and convert to the index
+@app.post("/url")
+async def url(link:Annotated[str, Form()]):
+    if link.find('youtube') != -1:
+        YoutubeTranscriptReader = download_loader("YoutubeTranscriptReader")
+        loader = YoutubeTranscriptReader()
+        document = loader.load_data([link])
+        index = GPTSimpleVectorIndex.from_documents(document,service_context=current_service_context)
+        # index = GPTListIndex.from_documents(document,service_context=current_service_context)
+
+    else:
+        SimpleWebPageReader = download_loader("SimpleWebPageReader")
+        loader = SimpleWebPageReader()
+        document = loader.load_data([link])
+        index = GPTSimpleVectorIndex.from_documents(document,service_context=current_service_context)
+        # index = GPTListIndex.from_documents(document,service_context=current_service_context)
+    index.save_to_disk(f"./data/url.json")
+
+    return "url fetched"
+
+# ask a question from the submited url
+@app.post("/url_query")
+async def url_query(question: Annotated[str, Form()]):
+    index = GPTSimpleVectorIndex.load_from_disk(f"./data/url.json", service_context=current_service_context)
+    # index = GPTListIndex.load_from_disk(f"./data/url.json", service_context=current_service_context)
+    res=index.query(question, similarity_top_k=3, verbose=True,response_mode="compact")
+    return res
+
+
+
