@@ -4,6 +4,8 @@ import { MotionPathPlugin } from 'gsap/dist/MotionPathPlugin';
 import Snowfall from 'react-snowfall'
 import Typewriter from 'typewriter-effect';
 import UploadPdf from './uploadpdf';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 gsap.registerPlugin(MotionPathPlugin);
 
@@ -15,6 +17,8 @@ const Hero = () => {
   const logo3 = useRef(null);
   const path = useRef(null);
   const div = useRef(null);
+  const router = useRouter();
+
 
   const handleScrollClick = (item) => {
     show.current.scrollIntoView({
@@ -122,7 +126,10 @@ const Hero = () => {
     setcenter(true);
     setcenter2(false);
     setcenter3(false);
+    setCenter('center1');
     handleScrollClick(logo);
+    
+    
   }
 
   const logoClicked2 = (event) => {
@@ -170,7 +177,8 @@ const Hero = () => {
 
     setcenter(false)
     setcenter2(true)
-    setcenter3(false)
+    setcenter3(false);
+    setCenter('center2');
     handleScrollClick(logo2);
   }
 
@@ -219,7 +227,8 @@ const Hero = () => {
 
     setcenter(false)
     setcenter2(false)
-    setcenter3(true)
+    setcenter3(true);
+    setCenter('center3');
     handleScrollClick(logo3);
   }
 
@@ -280,14 +289,14 @@ const Hero = () => {
       >
         <path d="M18 15H6l-4 4V3a1 1 0 011-1h15a1 1 0 011 1v11a1 1 0 01-1 1m5-6v14l-4-4H8a1 1 0 01-1-1v-1h14V8h1a1 1 0 011 1M8.19 4c-.87 0-1.57.2-2.11.59-.52.41-.78.98-.77 1.77l.01.03h1.93c.01-.3.1-.53.28-.69a1 1 0 01.66-.23c.31 0 .57.1.75.28.18.19.26.45.26.75 0 .32-.07.59-.23.82-.14.23-.35.43-.61.59-.51.34-.86.64-1.05.91C7.11 9.08 7 9.5 7 10h2c0-.31.04-.56.13-.74.09-.18.26-.36.51-.52.45-.24.82-.53 1.11-.93.29-.4.44-.81.44-1.31 0-.76-.27-1.37-.81-1.82C9.85 4.23 9.12 4 8.19 4M7 11v2h2v-2H7m6 2h2v-2h-2v2m0-9v6h2V4h-2z" />
       </svg>
-      <svg
-        ref={logo3}
-        xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
-        className='border-2 border-blue-500 h-[7rem] p-5 rounded-full bg-black absolute'
-        onClick={!center3 ? logoClicked3 : null}
-      >
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
-      </svg>
+        <svg
+          ref={logo3}
+          xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor"
+          className='border-2 border-blue-500 h-[7rem] p-5 rounded-full bg-black absolute'
+          onClick={!center3 ? logoClicked3 : null}
+        >
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
+        </svg>
       <div ref={show} className='ml-10 w-full opacity-0'></div>
       {/* <div className='absolute top-[30rem] left-[50%] -translate-x-[50%]'>
         <UploadPdf />
