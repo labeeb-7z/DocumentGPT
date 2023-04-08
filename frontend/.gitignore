@@ -1,0 +1,17 @@
+# dependencies
+/node_modules
+
+# build output
+/.next
+
+# local development env files
+/.env.local
+/.env.development.local
+/.env.test.local
+/.env.production.local
+
+# misc
+.DS_Store
+.next.cache
+.next.config.js
+.vscode
