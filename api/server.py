@@ -18,8 +18,9 @@ from PyPDF2 import PdfMerger
 import shutil
 import pathlib
 import os
-
-
+from pathlib import Path
+import markdown2
+import pdfkit
 
 # Custom modules
 import embeddings
@@ -193,68 +194,43 @@ async def url(link:Annotated[str, Form()]):
         # index = GPTListIndex.from_documents(document,service_context=current_service_context)
     index.save_to_disk(f"./data/url.json")
 
-    return "url fetched"
+    return "url uvifetched"
 
 # ask a question from the submited url
 @app.post("/url_query")
 async def url_query(question: Annotated[str, Form()]):
-    index = GPTListIndex.load_from_disk(f"./data/url.json", service_context=current_service_context)
+    index = GPTSimpleVectorIndex.load_from_disk(f"./data/url.json", service_context=current_service_context)
     res=index.query(question, similarity_top_k=3, verbose=True,response_mode="compact")
     return res
 
-@app.post("/multi")
-async def multi(files: list[UploadFile], embed_model = Annotated[str,Form()],llm_model = Annotated[str,Form()]):
-    # index_list = []
-    # summary_list=[]
-    # PDFReader = download_loader("PDFReader")
-    # current_service_context = embeddings.get_service_context(embed_model, llm_model)
-    # for file in files:
-    #         with open(f"current_active/{file.filename}", "wb") as buffer:
-    #             shutil.copyfileobj(file.file, buffer)
-    #         loader = PDFReader()
-    #         doc = loader.load_data(f"current_active/{file.filename}")
-
-    #         index = GPTListIndex.from_documents(doc,service_context=current_service_context)
-    #         index_list.append(index)
-    #         summary_list.append(str(index.query("What is a summary of this document?", response_mode="tree_summarize")))
-
-    merger = PdfFileMerger()
-
-    for file in files :
-        with open(f"current_active/_merge{file.filename}", "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-
-    for item in os.listdir('./current_active/'):
-        if item.startswith('_merge'):
-            #print(item)
-            merger.append('./current_active/' + item)
-
-    merger.write('./current_active/' + 'merged.pdf')
-    merger.close()
-
-    global current_filename, current_filetype, current_service_context, current_index, current_vector_index
+@app.post("/md")
+async def md(md_file: UploadFile = File(...)):
+    # with open(md_file, 'r') as file:
+    #     markdown_contents = file.read()
+    with open(f"current_active/{md_file.filename}", "wb") as buffer:
+        shutil.copyfileobj(md_file.file, buffer)
+    with open(f"current_active/{md_file.filename}", 'r') as file:
+        markdown_contents = file.read()
+    html_contents = markdown2.markdown(markdown_contents)
+    file=pdfkit.from_string(html_contents, f"./current_active/md_pdf.pdf")
+    filetype='pdf'
+    embed_model="HF"
+    llm_model="OpenAI"
+    global current_filename, current_filetype, current_service_context
     current_service_context = embeddings.get_service_context(embed_model, llm_model)
-    current_filename = "merged.pdf"
+    current_filename = "md_pdf.pdf"
     current_filetype = "pdf"
+
+    index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
+
+    return {"Markdown upload":"Success"}
+
+
+@app.post("/md_query")
+async def md_query(query : Annotated[str, Form()]):
     
-
-    # graph = ComposableGraph.from_indices(
-    #     GPTListIndex,
-    #     index_list,
-    #     index_summaries=summary_list,service_context=current_service_context)
+    print(current_filename)
+    res = embeddings.query_qna(query,current_filename,current_service_context)
     
-    #graph.save_to_disk("data/graph.json")
-# embeddings.create_embeddings(current_filename, current_filetype, current_service_context)[1]
-# current_vector_index,current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
-    return "Embeddings created for all the files"
+    return res
 
-@app.post("/multi_query")
-async def multi_query(query : Annotated[str,Form()]) :
-    
-
-    service_context = ServiceContext.from_defaults(chunk_size_limit=256)
-
-    graph = ComposableGraph.load_from_disk("data/graph.json",service_context=current_service_context)
-
-    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of summaries from the research paper. Your task is take these summaries and generate an accurate and precise response to the user's query.   User's Query is : "+query+"  Answer : ")
