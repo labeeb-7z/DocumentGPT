@@ -7,7 +7,7 @@ from llama_index import GPTSimpleVectorIndex, SimpleDirectoryReader, QuestionAns
 from llama_index.indices.composability import ComposableGraph
 
 from pydantic import BaseModel
-from typing import Annotated
+from typing import Annotated, List
 from llama_index import download_loader, ServiceContext
 from PyPDF2 import PdfMerger
 
@@ -18,9 +18,15 @@ from PyPDF2 import PdfMerger
 import shutil
 import pathlib
 import os
+<<<<<<< HEAD
 from pathlib import Path
 import markdown2
 import pdfkit
+=======
+import glob
+
+
+>>>>>>> 3343de95100765c22cdb461dcdd5f3dd40746e3a
 
 # Custom modules
 import embeddings
@@ -50,7 +56,7 @@ class PDFModel(BaseModel):
 
 
 #what are you doing on this route?
-@app.post("/")
+@app.get("/")
 async def root():
     return {"???????????"}
 
@@ -75,10 +81,18 @@ current_service_context = None
 #initial processing of document
 @app.post("/process")
 async def process(filetype : Annotated[str,Form()], 
-                  files: list[UploadFile], 
-                  embed_model = Annotated[str,Form()],
-                  llm_model = Annotated[str,Form()]):
+                  files: List[UploadFile],
+                  embed_model : Annotated[str,Form()],
+                  llm_model : Annotated[str,Form()],
+                  ocr : Annotated[str,Form()]) :
     
+    redundant = glob.glob('./current_active/*')
+    for r in redundant :
+        os.remove(r)
+    
+    redundant = glob.glob('./data/*')
+    for r in redundant :
+        os.remove(r)
 
     merger = PdfMerger()
 
@@ -86,11 +100,13 @@ async def process(filetype : Annotated[str,Form()],
         with open(f"current_active/_merge{file.filename}", "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-
     for item in os.listdir('./current_active/'):
         if item.startswith('_merge'):
-            #print(item)
+            if ocr == "true" :
+                print("inside ocr")
+                embeddings.get_ocr_done(item)
             merger.append('./current_active/' + item)
+            os.remove('./current_active/' + item)
 
     merger.write('./current_active/' + 'merged.pdf')
     merger.close()
@@ -106,7 +122,8 @@ async def process(filetype : Annotated[str,Form()],
     current_vector_index,current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
 
-    return {"Embeddings created for file ":"done"}
+    #return {"Embeddings created for file ":"done"}
+    return {"response":"Embeddings created for given file"}
 
 
 
@@ -121,6 +138,7 @@ async def query(query : Annotated[str, Form()]):
     
     res = embeddings.query_qna(query,current_filename,current_service_context)
 
+    print(res)
 
     return res
 
@@ -167,7 +185,7 @@ async def arxiv(topic:  Annotated[str, Form()]):
 
     index = GPTSimpleVectorIndex.from_documents(document,service_context=current_service_context)
     index.save_to_disk(f"./data/arxiv.json") # Will create a file
-    return {"Success" : "Papers loaded"}
+    return {"response" : "Papers loaded"}
 
 @app.post("/arxiv_query")
 async def arxiv_query(question : Annotated[str, Form()]):
@@ -194,7 +212,11 @@ async def url(link:Annotated[str, Form()]):
         # index = GPTListIndex.from_documents(document,service_context=current_service_context)
     index.save_to_disk(f"./data/url.json")
 
+<<<<<<< HEAD
     return "url uvifetched"
+=======
+    return {"response" : "URL loaded"}
+>>>>>>> 3343de95100765c22cdb461dcdd5f3dd40746e3a
 
 # ask a question from the submited url
 @app.post("/url_query")
@@ -223,6 +245,7 @@ async def md(md_file: UploadFile = File(...)):
 
     index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
+<<<<<<< HEAD
     return {"Markdown upload":"Success"}
 
 
@@ -233,4 +256,11 @@ async def md_query(query : Annotated[str, Form()]):
     res = embeddings.query_qna(query,current_filename,current_service_context)
     
     return res
+=======
+@app.post("/multi_query")
+async def multi_query(query : Annotated[str,Form()]) :
+    graph = ComposableGraph.load_from_disk("data/graph.json")
+
+    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of text embeddings from a paper in order of their cosine similarity to the query. You must take the given embeddings and return the only correct   answer from the paper that answers the query."+query)
+>>>>>>> 3343de95100765c22cdb461dcdd5f3dd40746e3a
 
