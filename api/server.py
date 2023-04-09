@@ -18,6 +18,7 @@ from PyPDF2 import PdfMerger
 import shutil
 import pathlib
 import os
+import glob
 
 
 
@@ -49,7 +50,7 @@ class PDFModel(BaseModel):
 
 
 #what are you doing on this route?
-@app.post("/")
+@app.get("/")
 async def root():
     return {"???????????"}
 
@@ -74,23 +75,29 @@ current_service_context = None
 #initial processing of document
 @app.post("/process")
 async def process(filetype : Annotated[str,Form()], 
-                  files: List[UploadFile] = File(...),
-                  embed_model = Annotated[str,Form()],
-                  llm_model = Annotated[str,Form()],
-                  ocr = Annotated[str,Form()]):
+                  files: List[UploadFile],
+                  embed_model : Annotated[str,Form()],
+                  llm_model : Annotated[str,Form()],
+                  ocr : Annotated[str,Form()]) :
     
+    redundant = glob.glob('./current_active/*')
+    for r in redundant :
+        os.remove(r)
+    
+    redundant = glob.glob('./data/*')
+    for r in redundant :
+        os.remove(r)
 
-    print("FDasfdsafasdf")
     merger = PdfMerger()
 
     for file in files :
         with open(f"current_active/_merge{file.filename}", "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
 
-
     for item in os.listdir('./current_active/'):
         if item.startswith('_merge'):
             if ocr == "true" :
+                print("inside ocr")
                 embeddings.get_ocr_done(item)
             merger.append('./current_active/' + item)
             os.remove('./current_active/' + item)
@@ -109,8 +116,8 @@ async def process(filetype : Annotated[str,Form()],
     current_vector_index,current_index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
 
-    return {"Embeddings created for file ":"done"}
-    return {"response":f"Embeddings created for {file.filename}"}
+    #return {"Embeddings created for file ":"done"}
+    return {"response":"Embeddings created for given file"}
 
 
 
@@ -125,6 +132,7 @@ async def query(query : Annotated[str, Form()]):
     
     res = embeddings.query_qna(query,current_filename,current_service_context)
 
+    print(res)
 
     return res
 
@@ -171,7 +179,7 @@ async def arxiv(topic:  Annotated[str, Form()]):
 
     index = GPTSimpleVectorIndex.from_documents(document,service_context=current_service_context)
     index.save_to_disk(f"./data/arxiv.json") # Will create a file
-    return {"Success" : "Papers loaded"}
+    return {"response" : "Papers loaded"}
 
 @app.post("/arxiv_query")
 async def arxiv_query(question : Annotated[str, Form()]):
@@ -198,7 +206,7 @@ async def url(link:Annotated[str, Form()]):
         # index = GPTListIndex.from_documents(document,service_context=current_service_context)
     index.save_to_disk(f"./data/url.json")
 
-    return "url fetched"
+    return {"response" : "URL loaded"}
 
 # ask a question from the submited url
 @app.post("/url_query")
