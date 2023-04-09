@@ -1,7 +1,7 @@
 from llama_index import GPTSimpleVectorIndex, QuestionAnswerPrompt
 
 
-def query_qna(text,filename,current_service_context, verbose=False):
+def query_qna(text,filename,current_service_context,similarity=3, verbose=False):
 
     QA_PROMPT_TMPL = (
     """You are a large language model whose expertise is reading and summarizing documents. 
@@ -22,14 +22,14 @@ def query_qna(text,filename,current_service_context, verbose=False):
     res = index.query(
         text,  
         verbose=True,
-        similarity_top_k=3,
+        similarity_top_k=similarity,
         text_qa_template=QA_PROMPT,
     )
     return res
 
 
 
-def query_highlight(text,filename,current_service_context, verbose=False):
+def query_highlight(text,filename,current_service_context,similarity=3, verbose=False):
 
     QA_PROMPT_TMPL = (
     """You are a large language model whose expertise is reading and summarizing scientific papers. 
@@ -52,7 +52,7 @@ def query_highlight(text,filename,current_service_context, verbose=False):
     res = index.query(
         text,  
         verbose=True,
-        similarity_top_k=3,
+        similarity_top_k=similarity,
         text_qa_template=QA_PROMPT,
         response_mode="compact"
     )

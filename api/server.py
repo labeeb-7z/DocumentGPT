@@ -18,15 +18,10 @@ from PyPDF2 import PdfMerger
 import shutil
 import pathlib
 import os
-<<<<<<< HEAD
 from pathlib import Path
 import markdown2
 import pdfkit
-=======
 import glob
-
-
->>>>>>> 3343de95100765c22cdb461dcdd5f3dd40746e3a
 
 # Custom modules
 import embeddings
@@ -72,7 +67,7 @@ current_filetype = None
 current_vector_index = None
 current_index = None
 current_service_context = None
-
+similarity=None
 
 
 
@@ -110,7 +105,9 @@ async def process(filetype : Annotated[str,Form()],
 
     merger.write('./current_active/' + 'merged.pdf')
     merger.close()
-    global current_filename, current_filetype, current_service_context, current_index, current_vector_index
+    global current_filename, current_filetype, current_service_context, current_index, current_vector_index,similarity
+    if llm_model=="HF" : 
+        similarity=1
     current_service_context = embeddings.get_service_context(embed_model, llm_model)
     current_filename = "merged.pdf"
     current_filetype = filetype
@@ -136,7 +133,7 @@ async def process(filetype : Annotated[str,Form()],
 @app.post("/queryqna")
 async def query(query : Annotated[str, Form()]):
     
-    res = embeddings.query_qna(query,current_filename,current_service_context)
+    res = embeddings.query_qna(query,current_filename,current_service_context,similarity)
 
     print(res)
 
@@ -146,7 +143,7 @@ async def query(query : Annotated[str, Form()]):
 async def query(query : Annotated[str, Form()], context : Annotated[str, Form()]):
     
     print("queryhighlight called")
-    res = embeddings.query_highlight(query,current_filename,current_service_context)
+    res = embeddings.query_highlight(query,current_filename,current_service_context,similarity)
     
 
     return res
@@ -212,11 +209,7 @@ async def url(link:Annotated[str, Form()]):
         # index = GPTListIndex.from_documents(document,service_context=current_service_context)
     index.save_to_disk(f"./data/url.json")
 
-<<<<<<< HEAD
-    return "url uvifetched"
-=======
     return {"response" : "URL loaded"}
->>>>>>> 3343de95100765c22cdb461dcdd5f3dd40746e3a
 
 # ask a question from the submited url
 @app.post("/url_query")
@@ -245,7 +238,6 @@ async def md(md_file: UploadFile = File(...)):
 
     index = embeddings.create_embeddings(current_filename, current_filetype, current_service_context)
 
-<<<<<<< HEAD
     return {"Markdown upload":"Success"}
 
 
@@ -256,11 +248,4 @@ async def md_query(query : Annotated[str, Form()]):
     res = embeddings.query_qna(query,current_filename,current_service_context)
     
     return res
-=======
-@app.post("/multi_query")
-async def multi_query(query : Annotated[str,Form()]) :
-    graph = ComposableGraph.load_from_disk("data/graph.json")
-
-    return graph.query("You are a large language model whose expertise is finding most precise answers to the query requested. You are given a query and a series of text embeddings from a paper in order of their cosine similarity to the query. You must take the given embeddings and return the only correct   answer from the paper that answers the query."+query)
->>>>>>> 3343de95100765c22cdb461dcdd5f3dd40746e3a
 
