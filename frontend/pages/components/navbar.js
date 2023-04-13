@@ -7,7 +7,7 @@ const Navbar = () => {
 
         <a href="https://flowbite.com/" class="flex items-left mx-3">
           <span class="self-start text-xl font-semibold whitespace-nowrap">
-            Document GPT
+            ChatDCT
           </span>
         </a>
         <div class="flex md:order-2">

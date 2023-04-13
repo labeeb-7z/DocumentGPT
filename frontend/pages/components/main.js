@@ -415,8 +415,8 @@ const Main = () => {
       </div>
 
       {/* ################# feature section ################# */}
-      <section class="bg-[#121416] text-white">
-        <div class="mx-auto max-w-screen-xl px-4 py-8 sm:py-12 sm:px-6 lg:py-16 lg:px-8">
+      <section class="bg-[#121416] text-white pt-32 pb-10">
+        <div class="mx-10 px-4 py-8">
           <div class="mx-auto max-w-lg text-center">
             <h2 class="text-3xl font-bold sm:text-4xl">Select a Tool</h2>
 
@@ -560,7 +560,7 @@ const Main = () => {
       </section>
       {/* ################# feature section done ################# */}
       {/* ################# qna section ################# */}
-      {type === "qna" && (
+      {type === "qna" && filename && (
         <div className="bg-[#121416] flex">
           <div className="w-[50%] pt-20 pl-16 pr-10">
             <h1 className="p-3 text-2xl">Selected Document</h1>
@@ -591,7 +591,7 @@ const Main = () => {
             <input onChange={(e) => sethighlight(!highlight)} id="default-checkbox" type="checkbox" value="" class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" />
             <label for="default-checkbox" class="ml-2 text-sm font-medium text-white">Ask Question from selected part of document ?</label>
           </div> */}
-            {highlight && (
+            {highlight && filename && (
               <>
                 <h1 className="p-3 text-2xl">Selected Text</h1>
                 <div className="border rounded mb-5">
@@ -606,7 +606,7 @@ const Main = () => {
               </>
             )}
             {}
-            {!highlight && <h1 className="p-3 text-2xl">Ask a Question:</h1>}
+            {!highlight && filename && <h1 className="p-3 text-2xl">Ask a Question:</h1>}
             <div className="mb-3 p-3 flex justify-between">
               {!highlight && (
                 <div className="border rounded p-2 w-[82%]">
@@ -637,7 +637,7 @@ const Main = () => {
       )}
       {/* ################# qna section done ################# */}
       {/* ################# arzive section ################# */}
-      {type === "arzive" && (
+      {type === "arzive" && filename && (
         <div className="px-[20rem] bg-[#121416]">
           <h1 className="p-3 text-2xl">Add a Arzive Topic:</h1>
           <div className="flex">
@@ -657,7 +657,7 @@ const Main = () => {
               Add
             </button>
           </div>
-          {showArziveQuestion && (
+          {showArziveQuestion  && (
             <>
               <h1 className="p-3 text-2xl">Ask Question :</h1>
               <div className="flex">
@@ -687,7 +687,7 @@ const Main = () => {
       )}
       {/* ################# arvize section done ################# */}
       {/* ################# web section ################# */}
-      {type === "web" && (
+      {type === "web" && filename && (
         <div className="px-[20rem] bg-[#121416]">
           <h1 className="p-3 text-2xl">Add a Web Topic:</h1>
           <div className="flex">

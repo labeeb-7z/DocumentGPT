@@ -126,7 +126,6 @@ const Hero = () => {
     setcenter(true);
     setcenter2(false);
     setcenter3(false);
-    setCenter('center1');
     handleScrollClick(logo);
     
     
@@ -178,7 +177,6 @@ const Hero = () => {
     setcenter(false)
     setcenter2(true)
     setcenter3(false);
-    setCenter('center2');
     handleScrollClick(logo2);
   }
 
@@ -228,7 +226,6 @@ const Hero = () => {
     setcenter(false)
     setcenter2(false)
     setcenter3(true);
-    setCenter('center3');
     handleScrollClick(logo3);
   }
 
@@ -248,7 +245,7 @@ const Hero = () => {
       </svg>
       <div className='h-[65rem] w-[80rem] mx-auto px-10 py-10 text-center'>
         <div>
-          <h1 className='text-6xl mt-32'><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 font-extrabold">DocumentGPT</span></h1> <h1 className='text-md tracking-widest my-8 font-semibold'>Helps</h1>
+          <h1 className='text-6xl mt-32'><span class="text-transparent bg-clip-text bg-gradient-to-r to-emerald-600 from-sky-400 font-extrabold">ChatDCT</span></h1> <h1 className='text-md tracking-widest my-8 font-semibold'>Helps</h1>
           <h1 className='text-5xl font-bold'>
             <Typewriter
               options={{
@@ -297,10 +294,11 @@ const Hero = () => {
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M4.26 10.147a60.436 60.436 0 00-.491 6.347A48.627 48.627 0 0112 20.904a48.627 48.627 0 018.232-4.41 60.46 60.46 0 00-.491-6.347m-15.482 0a50.57 50.57 0 00-2.658-.813A59.905 59.905 0 0112 3.493a59.902 59.902 0 0110.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0112 13.489a50.702 50.702 0 017.74-3.342M6.75 15a.75.75 0 100-1.5.75.75 0 000 1.5zm0 0v-3.675A55.378 55.378 0 0112 8.443m-7.007 11.55A5.981 5.981 0 006.75 15.75v-1.5" />
         </svg>
-      <div ref={show} className='ml-10 w-full opacity-0'></div>
-      {/* <div className='absolute top-[30rem] left-[50%] -translate-x-[50%]'>
-        <UploadPdf />
-      </div> */}
+      <div ref={show} className='ml-10 w-full opacity-0'>
+      </div>
+      <div className='absolute top-[30rem] left-[50%] -translate-x-[50%] border p-5 rounded-lg'>
+        <img className='' src="/hero.gif"></img>
+      </div>
     </div>
   )
 }
