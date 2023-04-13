@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useRef, useState } from 'react'
 import Qna from './qna'
 import PdfViewer from './pdf-viewer'
 import Summary from './summary'
