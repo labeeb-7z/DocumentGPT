@@ -28,6 +28,7 @@ const Main = () => {
   const [webLink, setwebLink] = useState(null);
   const [webQuestion, setwebQuestion] = useState(null);
   const [showWebQuestion, setShowWebQuestion] = useState(false);
+  const show = useRef(null);
 
   const handleDragEnter = (e) => {
     e.preventDefault();
@@ -48,6 +49,12 @@ const Main = () => {
   const handleSelection = () => {
     const selection = window.getSelection();
     setSelectedText(selection.toString());
+  };
+
+  const handleScrollClick = (item) => {
+    show.current.scrollIntoView({
+      behavior: 'smooth'
+    });
   };
 
   const handleAskedQuestion = async () => {
@@ -275,6 +282,7 @@ const Main = () => {
   // form submit
   const handlePdfFileSubmit = async(e) => {
     e.preventDefault();
+    handleScrollClick();
     if (pdfFile !== null) {
       setViewPdf(pdfFile);
       console.log(file);
@@ -425,7 +433,7 @@ const Main = () => {
             </p> */}
           </div>
 
-          <div class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div ref={show} class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div
               onClick={() => {
                 setType("qna");
