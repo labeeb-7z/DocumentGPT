@@ -423,7 +423,7 @@ const Main = () => {
       </div>
 
       {/* ################# feature section ################# */}
-      <section class="bg-[#121416] text-white pt-32 pb-10">
+      <section class="bg-[#121416] text-white pt-32 pb-10" ref={show}>
         <div class="mx-10 px-4 py-8">
           <div class="mx-auto max-w-lg text-center">
             <h2 class="text-3xl font-bold sm:text-4xl">Select a Tool</h2>
@@ -433,17 +433,17 @@ const Main = () => {
             </p> */}
           </div>
 
-          <div ref={show} class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+          <div class="mt-8 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
             <div
               onClick={() => {
                 setType("qna");
                 sethighlight(false);
               }}
-              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-pink-500/10 hover:shadow-pink-500/10"
+              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-cyan-500/10 hover:shadow-cyan-500/10"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-10 w-10 text-pink-500"
+                class="h-10 w-10 text-cyan-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -473,12 +473,12 @@ const Main = () => {
                 setType("qna");
                 sethighlight(true);
               }}
-              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-pink-500/10 hover:shadow-pink-500/10"
+              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-cyan-500/10 hover:shadow-cyan-500/10"
               href="/services/digital-campaigns"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-10 w-10 text-pink-500"
+                class="h-10 w-10 text-cyan-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -507,11 +507,11 @@ const Main = () => {
 
             <div
               onClick={() => setType("arzive")}
-              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-pink-500/10 hover:shadow-pink-500/10"
+              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-cyan-500/10 hover:shadow-cyan-500/10"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-10 w-10 text-pink-500"
+                class="h-10 w-10 text-cyan-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -536,11 +536,11 @@ const Main = () => {
             </div>
           <div
               onClick={() => setType("web")}
-              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-pink-500/10 hover:shadow-pink-500/10"
+              class="block rounded-xl border border-gray-800 p-8 shadow-xl transition hover:border-cyan-500/10 hover:shadow-cyan-500/10"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
-                class="h-10 w-10 text-pink-500"
+                class="h-10 w-10 text-cyan-500"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
